@@ -1,24 +1,33 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface LayoutContextType {
-  isSidebarOpen: boolean;
-  toggleSidebar: () => void;
-  setSidebarOpen: (isOpen: boolean) => void;
+  isDesktopCollapsed: boolean;
+  toggleDesktopSidebar: () => void;
+  isMobileOpen: boolean;
+  toggleMobileMenu: () => void;
+  setMobileOpen: (isOpen: boolean) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export function LayoutProvider({ children }: { children: ReactNode }) {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isDesktopCollapsed, setDesktopCollapsed] = useState(false);
+  const [isMobileOpen, setMobileOpen] = useState(false);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(prev => !prev);
+  const toggleDesktopSidebar = () => {
+    setDesktopCollapsed(prev => !prev);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileOpen(prev => !prev);
   };
 
   const value = {
-    isSidebarOpen,
-    toggleSidebar,
-    setSidebarOpen,
+    isDesktopCollapsed,
+    toggleDesktopSidebar,
+    isMobileOpen,
+    toggleMobileMenu,
+    setMobileOpen,
   };
 
   return (

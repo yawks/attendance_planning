@@ -5,21 +5,21 @@ import { VitePWA } from "vite-plugin-pwa"
 
 const manifestForPlugin = {
   registerType: "prompt",
-  includeAssets: ["icon-192x192.svg", "icon-512x512.svg"],
+  includeAssets: ["logo.png"],
   manifest: {
     name: "Presence Tracker",
     short_name: "Presence",
     description: "Une application simple pour suivre les présences.",
     icons: [
       {
-        src: "/icon-192x192.svg",
+        src: "/logo.png",
         sizes: "192x192",
-        type: "image/svg+xml",
+        type: "image/png",
       },
       {
-        src: "/icon-512x512.svg",
+        src: "/logo.png",
         sizes: "512x512",
-        type: "image/svg+xml",
+        type: "image/png",
       },
     ],
     theme_color: "#ffffff",
@@ -31,8 +31,6 @@ const manifestForPlugin = {
   },
 };
 
-const PORT = 8080;
-
 export default defineConfig({
   plugins: [react(), VitePWA(manifestForPlugin)],
   resolve: {
@@ -40,6 +38,4 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: { port: PORT, host: true },
-  preview: { port: PORT, host: true },
 })

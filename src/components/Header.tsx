@@ -8,12 +8,12 @@ import { useLayout } from '@/contexts/LayoutContext';
 
 export function Header() {
   const { isAuthenticated, user, signOut, isLoading } = useAuth();
-  const { toggleSidebar } = useLayout();
+  const { toggleMobileMenu } = useLayout();
 
   return (
     <header className="border-b p-4 flex items-center justify-between lg:justify-end">
       {/* Hamburger menu for mobile */}
-      <Button variant="ghost" size="icon" className="lg:hidden" onClick={toggleSidebar}>
+      <Button variant="ghost" size="icon" className="lg:hidden" onClick={toggleMobileMenu}>
         <Menu className="h-6 w-6" />
       </Button>
 

@@ -86,8 +86,8 @@ export function MyPresencesPage() {
                       Bureau
                     </Button>
                     <Button
-                      variant={currentPresence === 'Maison' ? 'destructive' : 'outline'}
-                      className="w-full bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-800"
+                    variant={currentPresence === 'Maison' ? 'secondary' : 'outline'}
+                    className="w-full"
                       onClick={() => handlePresenceChange(dateString, 'Maison')}
                     >
                       <Home className="h-4 w-4 mr-2" />
