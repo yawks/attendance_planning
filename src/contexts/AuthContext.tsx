@@ -62,6 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('isAuthenticated');
     setUser(null);
     setToken(null);
+    // Force a redirect to the login page to clear all state and prompt re-auth
+    window.location.href = '/login';
   };
 
   const value = {
