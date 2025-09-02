@@ -1,40 +1,43 @@
 import { useState, useCallback } from 'react';
-import { gapi } from 'gapi-script';
+import axios from 'axios';
+import { useAuth } from './AuthContext';
 
 const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
 const SHEET_NAME = 'Presences';
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY; // For read-only operations
 
 export interface PresenceData {
   weekNumber: string;
   date: string;
   userEmail: string;
   presence: 'Yes' | 'No';
-  rawRow: number; // Keep track of the original row index for updates
+  rawRow: number;
 }
 
 export function useGoogleSheets() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const { token } = useAuth();
 
   const getPresences = useCallback(async (weekNumber: string): Promise<PresenceData[]> => {
     setLoading(true);
     setError(null);
     try {
-      const response = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `${SHEET_NAME}!A:D`,
-      });
+      const response = await axios.get(
+        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:D`,
+        { params: { key: API_KEY } }
+      );
 
-      const rows = response.result.values || [];
+      const rows = response.data.values || [];
       const data = rows
-        .map((row, index) => ({
+        .map((row: string[], index: number) => ({
           weekNumber: row[0],
           date: row[1],
           userEmail: row[2],
           presence: row[3],
-          rawRow: index + 1, // Sheets are 1-indexed
+          rawRow: index + 1,
         }))
-        .filter(item => item.weekNumber === weekNumber);
+        .filter((item: PresenceData) => item.weekNumber === weekNumber);
 
       return data;
     } catch (err: any) {
@@ -43,7 +46,7 @@ export function useGoogleSheets() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [API_KEY]);
 
   const setPresence = useCallback(async (
     date: string,
@@ -51,51 +54,51 @@ export function useGoogleSheets() {
     weekNumber: string,
     isPresent: boolean
   ) => {
+    if (!token) {
+      setError(new Error("Authentication token is missing."));
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      // First, get all data to check if the entry exists
-      const response = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `${SHEET_NAME}!A:D`,
-      });
+      const readResponse = await axios.get(
+        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:D`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      const rows = response.result.values || [];
+      const rows = readResponse.data.values || [];
       const existingRowIndex = rows.findIndex(
-        row => row[1] === date && row[2] === userEmail
+        (row: string[]) => row[1] === date && row[2] === userEmail
       );
 
       const presenceValue = isPresent ? 'Yes' : 'No';
 
       if (existingRowIndex !== -1) {
-        // Row exists, update it
         const rowToUpdate = existingRowIndex + 1;
-        await gapi.client.sheets.spreadsheets.values.update({
-          spreadsheetId: SPREADSHEET_ID,
-          range: `${SHEET_NAME}!D${rowToUpdate}`,
-          valueInputOption: 'RAW',
-          resource: {
-            values: [[presenceValue]],
-          },
-        });
+        await axios.put(
+          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!D${rowToUpdate}`,
+          { values: [[presenceValue]] },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { valueInputOption: 'RAW' }
+          }
+        );
       } else {
-        // Row does not exist, append it
-        await gapi.client.sheets.spreadsheets.values.append({
-          spreadsheetId: SPREADSHEET_ID,
-          range: `${SHEET_NAME}!A:D`,
-          valueInputOption: 'USER_ENTERED',
-          insertDataOption: 'INSERT_ROWS',
-          resource: {
-            values: [[weekNumber, date, userEmail, presenceValue]],
-          },
-        });
+        await axios.post(
+          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:D:append`,
+          { values: [[weekNumber, date, userEmail, presenceValue]] },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS' }
+          }
+        );
       }
     } catch (err: any) {
       setError(err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   return { loading, error, getPresences, setPresence };
 }

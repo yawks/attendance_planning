@@ -1,5 +1,6 @@
-import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { gapi } from 'gapi-script';
+import { createContext, useState, useEffect, useContext, ReactNode, useCallback } from 'react';
+import { useGoogleLogin, googleLogout } from '@react-oauth/google';
+import axios from 'axios';
 
 interface UserProfile {
   email: string;
@@ -10,90 +11,65 @@ interface UserProfile {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: UserProfile | null;
-  signIn: () => Promise<void>;
+  signIn: () => void;
   signOut: () => void;
   isLoading: boolean;
+  token: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return !!localStorage.getItem('isAuthenticated');
-  });
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('accessToken'));
 
-  useEffect(() => {
-    const start = () => {
-      // Use gapi.auth2.init for authentication setup
-      gapi.auth2.init({
-        clientId: CLIENT_ID,
-        scope: 'email profile',
-      }).then(() => {
-        const authInstance = gapi.auth2.getAuthInstance();
-        const isSignedIn = authInstance.isSignedIn.get();
-        if (isSignedIn) {
-          const profile = authInstance.currentUser.get().getBasicProfile();
-          setUser({
-            email: profile.getEmail(),
-            name: profile.getName(),
-            imageUrl: profile.getImageUrl(),
-          });
-          localStorage.setItem('isAuthenticated', 'true');
-          setIsAuthenticated(true);
-        } else {
-          localStorage.removeItem('isAuthenticated');
-          setIsAuthenticated(false);
-        }
-        setIsLoading(false);
-      }).catch(() => {
-        setIsLoading(false);
-        localStorage.removeItem('isAuthenticated');
-        setIsAuthenticated(false);
+  const fetchProfile = useCallback(async (accessToken: string) => {
+    try {
+      const { data } = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
-    };
-    // Load only the 'auth2' library for this context
-    gapi.load('auth2', start);
+      setUser({ name: data.name, email: data.email, imageUrl: data.picture });
+      localStorage.setItem('isAuthenticated', 'true');
+    } catch (error) {
+      console.error("Failed to fetch user profile", error);
+      signOut(); // Sign out if profile fetch fails
+    }
   }, []);
 
-  const signIn = async () => {
-    const authInstance = gapi.auth2.getAuthInstance();
-    if (!authInstance) {
-      console.error("Google Auth instance not initialized");
-      return;
+  useEffect(() => {
+    if (token) {
+      fetchProfile(token).finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
     }
-    await authInstance.signIn();
-    const profile = authInstance.currentUser.get().getBasicProfile();
-    setUser({
-      email: profile.getEmail(),
-      name: profile.getName(),
-      imageUrl: profile.getImageUrl(),
-    });
-    localStorage.setItem('isAuthenticated', 'true');
-    setIsAuthenticated(true);
-  };
+  }, [token, fetchProfile]);
+
+  const signIn = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      localStorage.setItem('accessToken', tokenResponse.access_token);
+      setToken(tokenResponse.access_token);
+    },
+    onError: (error) => {
+      console.error('Login Failed:', error);
+    },
+  });
 
   const signOut = () => {
-    const authInstance = gapi.auth2.getAuthInstance();
-    if (!authInstance) {
-      console.error("Google Auth instance not initialized");
-      return;
-    }
-    authInstance.signOut().then(() => {
-      setUser(null);
-      localStorage.removeItem('isAuthenticated');
-      setIsAuthenticated(false);
-    });
+    googleLogout();
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('isAuthenticated');
+    setUser(null);
+    setToken(null);
   };
 
   const value = {
-    isAuthenticated,
+    isAuthenticated: !!user,
     user,
     signIn,
     signOut,
     isLoading,
+    token,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
