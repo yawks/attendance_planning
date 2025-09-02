@@ -12,7 +12,8 @@ export interface PresenceData {
   date: string;
   userEmail: string;
   userName: string;
-  presence: PresenceValue | string; // Allow string for initial parsing
+  userImageURL: string;
+  presence: PresenceValue | string;
   rawRow: number;
 }
 
@@ -22,15 +23,12 @@ export function useGoogleSheets() {
   const { token, user } = useAuth();
 
   const getPresences = useCallback(async (weekNumber: string): Promise<PresenceData[]> => {
-    if (!token) {
-      setError(new Error("Authentication token is missing for reading data."));
-      return [];
-    }
+    if (!token) return [];
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:E`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:F`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -41,7 +39,8 @@ export function useGoogleSheets() {
           date: row[1],
           userEmail: row[2],
           userName: row[3],
-          presence: row[4],
+          userImageURL: row[4],
+          presence: row[5],
           rawRow: index + 1,
         }))
         .filter((item: PresenceData) => item.weekNumber === weekNumber);
@@ -60,15 +59,12 @@ export function useGoogleSheets() {
     weekNumber: string,
     presenceValue: PresenceValue
   ) => {
-    if (!token || !user) {
-      setError(new Error("User or token is missing for writing data."));
-      return;
-    }
+    if (!token || !user) return;
     setLoading(true);
     setError(null);
     try {
       const readResponse = await axios.get(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:E`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:F`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -79,10 +75,9 @@ export function useGoogleSheets() {
 
       if (existingRowIndex !== -1) {
         const rowToUpdate = existingRowIndex + 1;
-        // Update both UserName and Presence, in case the name was missing before
         await axios.put(
-          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!D${rowToUpdate}:E${rowToUpdate}`,
-          { values: [[user.name, presenceValue]] },
+          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!D${rowToUpdate}:F${rowToUpdate}`,
+          { values: [[user.name, user.imageUrl, presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { valueInputOption: 'RAW' }
@@ -90,8 +85,8 @@ export function useGoogleSheets() {
         );
       } else {
         await axios.post(
-          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:E:append`,
-          { values: [[weekNumber, date, user.email, user.name, presenceValue]] },
+          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:F:append`,
+          { values: [[weekNumber, date, user.email, user.name, user.imageUrl, presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS' }

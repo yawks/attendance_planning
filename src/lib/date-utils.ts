@@ -17,7 +17,7 @@ export function getWeekId(date: Date = new Date()): string {
 }
 
 /**
- * Gets an array of Date objects for each day in a given ISO week.
+ * Gets an array of Date objects for each weekday (Mon-Fri) in a given ISO week.
  */
 export function getDaysInWeek(weekId: string): Date[] {
   const [year, week] = weekId.split('-W').map(Number);
@@ -27,7 +27,8 @@ export function getDaysInWeek(weekId: string): Date[] {
   const weekStart = startOfISOWeek(estimatedDate);
 
   const days = [];
-  for (let i = 0; i < 7; i++) {
+  // Loop 5 times for Monday to Friday
+  for (let i = 0; i < 5; i++) {
     days.push(addDays(weekStart, i));
   }
   return days;
