@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-import { useAuth } from './AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
 const SHEET_NAME = 'Presences';
