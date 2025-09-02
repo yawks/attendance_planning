@@ -34,7 +34,8 @@ Pour faire fonctionner ce projet en local, vous devez configurer un projet sur l
     *   `A1`: `WeekNumber`
     *   `B1`: `Date`
     *   `C1`: `UserEmail`
-    *   `D1`: `Presence`
+    *   `D1`: `UserName`
+    *   `E1`: `Presence` (les valeurs seront `Bureau` ou `Maison`)
 5.  **Récupérez l'ID du Sheet** : Dans l'URL de votre sheet (`https://docs.google.com/spreadsheets/d/THIS_IS_THE_ID/edit`), copiez la longue chaîne de caractères. Vous en aurez besoin pour les variables d'environnement.
 
 ### 2. Configuration du Projet Google Cloud

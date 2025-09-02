@@ -4,6 +4,7 @@ import { RouterProvider } from '@tanstack/react-router'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { router } from './router'
 import { AuthProvider } from './contexts/AuthContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import './index.css'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -13,11 +14,13 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <React.StrictMode>
-      <GoogleOAuthProvider clientId={CLIENT_ID}>
-        <AuthProvider>
-          <RouterProvider router={router} />
-        </AuthProvider>
-      </GoogleOAuthProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <GoogleOAuthProvider clientId={CLIENT_ID}>
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
+        </GoogleOAuthProvider>
+      </ThemeProvider>
     </React.StrictMode>,
   )
 }

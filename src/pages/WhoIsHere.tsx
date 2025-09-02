@@ -5,6 +5,7 @@ import { WeekSelector } from '@/components/WeekSelector';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Calendar, User } from 'lucide-react';
 
 type PresencesByDay = Map<string, string[]>;
 
@@ -17,9 +18,11 @@ export function WhoIsHerePage() {
     getPresences(weekId).then(data => {
       const byDay: PresencesByDay = new Map();
       data.forEach(p => {
-        if (p.presence === 'Yes') {
+        // Only show users who are at the 'Bureau'
+        if (p.presence === 'Bureau') {
           const users = byDay.get(p.date) || [];
-          users.push(p.userEmail);
+          // Use userName, fallback to userEmail if userName is not available
+          users.push(p.userName || p.userEmail);
           byDay.set(p.date, users);
         }
       });
@@ -32,34 +35,37 @@ export function WhoIsHerePage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Qui est là cette semaine ?</CardTitle>
-        <CardDescription>Récapitulatif des présences pour la semaine sélectionnée.</CardDescription>
+        <CardTitle>Qui est au bureau cette semaine ?</CardTitle>
+        <CardDescription>Récapitulatif des personnes présentes au bureau.</CardDescription>
       </CardHeader>
       <CardContent>
         <WeekSelector weekId={weekId} setWeekId={setWeekId} />
-        {loading && <div className="text-center">Chargement...</div>}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {loading && <div className="text-center p-4">Chargement...</div>}
+        <div className="space-y-6 mt-4">
           {days.map(day => {
             const dateString = toISODateString(day);
             const presentUsers = presencesByDay.get(dateString) || [];
             return (
-              <Card key={dateString} className="flex flex-col">
-                <CardHeader>
-                  <CardTitle className="text-lg capitalize">{format(day, 'eeee', { locale: fr })}</CardTitle>
-                  <CardDescription>{format(day, 'd MMMM yyyy', { locale: fr })}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  {presentUsers.length > 0 ? (
-                    <ul className="space-y-1 text-sm">
-                      {presentUsers.map(email => (
-                        <li key={email} className="truncate">{email}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-gray-500">Personne n'est présent.</p>
-                  )}
-                </CardContent>
-              </Card>
+              <div key={dateString}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Calendar className="h-5 w-5 text-gray-500" />
+                  <h3 className="font-semibold text-lg capitalize">
+                    {format(day, 'eeee d MMMM', { locale: fr })}
+                  </h3>
+                </div>
+                {presentUsers.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    {presentUsers.map(name => (
+                      <div key={name} className="flex items-center gap-2 p-2 border rounded-md bg-gray-50 dark:bg-gray-800">
+                        <User className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                        <span className="text-sm font-medium truncate">{name}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic px-2">Personne au bureau.</p>
+                )}
+              </div>
             );
           })}
         </div>

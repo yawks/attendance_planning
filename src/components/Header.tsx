@@ -1,13 +1,14 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
   const { isAuthenticated, user, signOut, isLoading } = useAuth();
 
   return (
-    <header className="border-b p-4 bg-gray-50">
+    <header className="border-b p-4">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">Presence Tracker</h1>
-        <div>
+        <div className="flex items-center gap-4">
           {isLoading ? (
             <p className="text-sm text-gray-500">Loading...</p>
           ) : isAuthenticated && user ? (
@@ -26,6 +27,7 @@ export function Header() {
           ) : (
             <p className="text-sm text-gray-600">Utilisateur non connecté</p>
           )}
+          <ThemeToggle />
         </div>
       </div>
     </header>

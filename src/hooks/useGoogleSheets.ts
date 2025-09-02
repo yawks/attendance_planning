@@ -5,18 +5,21 @@ import { useAuth } from '@/contexts/AuthContext';
 const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
 const SHEET_NAME = 'Presences';
 
+export type PresenceValue = 'Bureau' | 'Maison';
+
 export interface PresenceData {
   weekNumber: string;
   date: string;
   userEmail: string;
-  presence: 'Yes' | 'No';
+  userName: string;
+  presence: PresenceValue | string; // Allow string for initial parsing
   rawRow: number;
 }
 
 export function useGoogleSheets() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   const getPresences = useCallback(async (weekNumber: string): Promise<PresenceData[]> => {
     if (!token) {
@@ -27,7 +30,7 @@ export function useGoogleSheets() {
     setError(null);
     try {
       const response = await axios.get(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:D`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:E`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -37,7 +40,8 @@ export function useGoogleSheets() {
           weekNumber: row[0],
           date: row[1],
           userEmail: row[2],
-          presence: row[3],
+          userName: row[3],
+          presence: row[4],
           rawRow: index + 1,
         }))
         .filter((item: PresenceData) => item.weekNumber === weekNumber);
@@ -53,34 +57,32 @@ export function useGoogleSheets() {
 
   const setPresence = useCallback(async (
     date: string,
-    userEmail: string,
     weekNumber: string,
-    isPresent: boolean
+    presenceValue: PresenceValue
   ) => {
-    if (!token) {
-      setError(new Error("Authentication token is missing for writing data."));
+    if (!token || !user) {
+      setError(new Error("User or token is missing for writing data."));
       return;
     }
     setLoading(true);
     setError(null);
     try {
       const readResponse = await axios.get(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:D`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:E`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const rows = readResponse.data.values || [];
       const existingRowIndex = rows.findIndex(
-        (row: string[]) => row[1] === date && row[2] === userEmail
+        (row: string[]) => row[1] === date && row[2] === user.email
       );
-
-      const presenceValue = isPresent ? 'Yes' : 'No';
 
       if (existingRowIndex !== -1) {
         const rowToUpdate = existingRowIndex + 1;
+        // Update both UserName and Presence, in case the name was missing before
         await axios.put(
-          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!D${rowToUpdate}`,
-          { values: [[presenceValue]] },
+          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!D${rowToUpdate}:E${rowToUpdate}`,
+          { values: [[user.name, presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { valueInputOption: 'RAW' }
@@ -88,8 +90,8 @@ export function useGoogleSheets() {
         );
       } else {
         await axios.post(
-          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:D:append`,
-          { values: [[weekNumber, date, userEmail, presenceValue]] },
+          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:E:append`,
+          { values: [[weekNumber, date, user.email, user.name, presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS' }
@@ -101,7 +103,7 @@ export function useGoogleSheets() {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, user]);
 
   return { loading, error, getPresences, setPresence };
 }
