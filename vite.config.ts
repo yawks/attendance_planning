@@ -31,6 +31,8 @@ const manifestForPlugin = {
   },
 };
 
+const PORT = 8080;
+
 export default defineConfig({
   plugins: [react(), VitePWA(manifestForPlugin)],
   resolve: {
@@ -38,4 +40,6 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: { port: PORT, host: true },
+  preview: { port: PORT, host: true },
 })
