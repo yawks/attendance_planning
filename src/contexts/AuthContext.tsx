@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
   };
 
-  return <AuthContext.Provider value={value}>{children}</Auth.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
