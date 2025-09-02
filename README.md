@@ -58,10 +58,6 @@ Pour faire fonctionner ce projet en local, vous devez configurer un projet sur l
     *   Dans `Authorized redirect URIs`, ajoutez également cette URL.
     *   Cliquez sur `Create`. Une fenêtre apparaîtra avec votre **Client ID**. Copiez-le.
 
-6.  **Créez une Clé d'API (pour la lecture)** :
-    *   Toujours dans `APIs & Services > Credentials`, cliquez sur `+ CREATE CREDENTIALS` et choisissez `API key`.
-    *   Copiez la clé qui est générée. Il est recommandé de restreindre cette clé pour qu'elle ne puisse être utilisée que pour l'API Google Sheets et depuis votre URL d'application, mais pour un test rapide, ce n'est pas obligatoire.
-
 ### 3. Variables d'Environnement
 
 1.  À la racine du projet, copiez le fichier `.env.example` et renommez la copie en `.env`.
@@ -72,7 +68,6 @@ Pour faire fonctionner ce projet en local, vous devez configurer un projet sur l
     ```
     VITE_GOOGLE_CLIENT_ID="VOTRE_CLIENT_ID_GOOGLE_ICI"
     VITE_GOOGLE_SHEET_ID="VOTRE_ID_DE_GOOGLE_SHEET_ICI"
-    VITE_GOOGLE_API_KEY="VOTRE_CLE_API_GOOGLE_ICI"
     ```
 
 ---

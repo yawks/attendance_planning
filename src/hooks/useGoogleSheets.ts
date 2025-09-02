@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
 const SHEET_NAME = 'Presences';
-const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY; // For read-only operations
 
 export interface PresenceData {
   weekNumber: string;
@@ -20,12 +19,16 @@ export function useGoogleSheets() {
   const { token } = useAuth();
 
   const getPresences = useCallback(async (weekNumber: string): Promise<PresenceData[]> => {
+    if (!token) {
+      setError(new Error("Authentication token is missing for reading data."));
+      return [];
+    }
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get(
         `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:D`,
-        { params: { key: API_KEY } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const rows = response.data.values || [];
@@ -46,7 +49,7 @@ export function useGoogleSheets() {
     } finally {
       setLoading(false);
     }
-  }, [API_KEY]);
+  }, [token]);
 
   const setPresence = useCallback(async (
     date: string,
@@ -55,7 +58,7 @@ export function useGoogleSheets() {
     isPresent: boolean
   ) => {
     if (!token) {
-      setError(new Error("Authentication token is missing."));
+      setError(new Error("Authentication token is missing for writing data."));
       return;
     }
     setLoading(true);
