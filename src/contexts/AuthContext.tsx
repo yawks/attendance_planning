@@ -27,7 +27,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const start = () => {
-      gapi.client.init({
+      // Use gapi.auth2.init for authentication setup
+      gapi.auth2.init({
         clientId: CLIENT_ID,
         scope: 'email profile',
       }).then(() => {
@@ -53,11 +54,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAuthenticated(false);
       });
     };
-    gapi.load('client:auth2', start);
+    // Load only the 'auth2' library for this context
+    gapi.load('auth2', start);
   }, []);
 
   const signIn = async () => {
     const authInstance = gapi.auth2.getAuthInstance();
+    if (!authInstance) {
+      console.error("Google Auth instance not initialized");
+      return;
+    }
     await authInstance.signIn();
     const profile = authInstance.currentUser.get().getBasicProfile();
     setUser({
@@ -70,7 +76,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = () => {
-    gapi.auth2.getAuthInstance().signOut().then(() => {
+    const authInstance = gapi.auth2.getAuthInstance();
+    if (!authInstance) {
+      console.error("Google Auth instance not initialized");
+      return;
+    }
+    authInstance.signOut().then(() => {
       setUser(null);
       localStorage.removeItem('isAuthenticated');
       setIsAuthenticated(false);
@@ -85,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</Auth.Provider>;
 }
 
 export function useAuth() {
