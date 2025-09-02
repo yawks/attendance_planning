@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onError: (error) => {
       console.error('Login Failed:', error);
     },
-    scope: 'https://www.googleapis.com/auth/spreadsheets',
+    scope: 'profile email https://www.googleapis.com/auth/spreadsheets',
   });
 
   const signOut = () => {
