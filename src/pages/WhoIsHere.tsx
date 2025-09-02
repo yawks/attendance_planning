@@ -67,7 +67,7 @@ export function WhoIsHerePage() {
       </CardHeader>
       <CardContent>
         <WeekSelector weekId={weekId} setWeekId={setWeekId} />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
           {loading ? (
             Array.from({ length: 5 }).map((_, i) => <DayColumnSkeleton key={i} />)
           ) : (
@@ -86,7 +86,7 @@ export function WhoIsHerePage() {
                         <div key={person.name} className="flex items-center gap-2 p-1.5 text-xs">
                           <Avatar className="h-6 w-6">
                             <AvatarImage src={person.imageUrl} alt={person.name} />
-                            <AvatarFallback>{person.name.charAt(0)}</AvatarFallback>
+                          <AvatarFallback name={person.name} />
                           </Avatar>
                           <span className="font-medium truncate">{person.name}</span>
                         </div>

@@ -63,7 +63,7 @@ export function MyPresencesPage() {
       </CardHeader>
       <CardContent>
         <WeekSelector weekId={weekId} setWeekId={setWeekId} />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
           {loading ? (
             Array.from({ length: 5 }).map((_, i) => <DayCardSkeleton key={i} />)
           ) : (
@@ -86,8 +86,8 @@ export function MyPresencesPage() {
                       Bureau
                     </Button>
                     <Button
-                      variant={currentPresence === 'Maison' ? 'secondary' : 'outline'}
-                      className="w-full"
+                      variant={currentPresence === 'Maison' ? 'destructive' : 'outline'}
+                      className="w-full bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-800"
                       onClick={() => handlePresenceChange(dateString, 'Maison')}
                     >
                       <Home className="h-4 w-4 mr-2" />
