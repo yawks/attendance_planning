@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
-import { getNextWeekId, getPreviousWeekId } from "@/lib/date-utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getNextWeekId, getPreviousWeekId, getWeekId } from "@/lib/date-utils";
+import { ChevronLeft, ChevronRight, CalendarClock } from "lucide-react";
 
 interface WeekSelectorProps {
   weekId: string;
@@ -16,6 +16,10 @@ export function WeekSelector({ weekId, setWeekId }: WeekSelectorProps) {
     setWeekId(getNextWeekId(weekId));
   };
 
+  const handleCurrentWeek = () => {
+    setWeekId(getWeekId());
+  };
+
   return (
     <div className="flex items-center justify-center gap-4 my-4">
       <Button variant="outline" size="icon" onClick={handlePreviousWeek}>
@@ -24,6 +28,9 @@ export function WeekSelector({ weekId, setWeekId }: WeekSelectorProps) {
       <span className="text-lg font-semibold w-32 text-center">{weekId}</span>
       <Button variant="outline" size="icon" onClick={handleNextWeek}>
         <ChevronRight className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" onClick={handleCurrentWeek} disabled={weekId === getWeekId()}>
+        <CalendarClock className="h-4 w-4" />
       </Button>
     </div>
   );
