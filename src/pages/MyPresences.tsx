@@ -102,14 +102,18 @@ export function MyPresencesPage() {
             )}
           </div>
         </div>
-        <div className="w-full flex justify-center mt-8">
+        <div className="mt-8 w-full">
           <Calendar
-            mode="multiple"
-            selected={days}
+            mode="range"
+            selected={{ from: days[0], to: days[4] }}
             month={days[0]}
-            ISOWeek
             locale={fr}
             className="rounded-md border"
+            hideNav
+            showOutsideDays={false}
+            disabled={(date) =>
+              !days.find((d) => toISODateString(d) === toISODateString(date))
+            }
           />
         </div>
       </CardContent>
