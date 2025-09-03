@@ -31,6 +31,7 @@ const manifestForPlugin = {
 };
 
 export default defineConfig({
+  base: '/presence-tracker/',
   plugins: [react(), VitePWA(manifestForPlugin)],
   resolve: {
     alias: {
