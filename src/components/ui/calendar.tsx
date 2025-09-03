@@ -99,7 +99,7 @@ as-focus:ring-[3px] relative rounded-md border",
 t-normal",
           defaultClassNames.weekday
         ),
-        week: cn("mt-2 flex w-full", defaultClassNames.week),
+        week: cn("mt-2 flex w-full [&>*:not(:first-child)]:-ml-px", defaultClassNames.week),
         week_number_header: cn(
           "w-[--cell-size] select-none",
           defaultClassNames.week_number_header
@@ -216,14 +216,15 @@ function CalendarDayButton({
       className={cn(
         "data-[selected-single=true]:bg-primary data-[selected-single=true]:text\
 -primary-foreground data-[range-middle=true]:bg-secondary data-[range-middle=tr\
-ue]:text-secondary-foreground data-[range-start=true]:bg-primary data-[range-sta\
-rt=true]:text-primary-foreground data-[range-end=true]:bg-primary data-[range-en\
-d=true]:text-primary-foreground group-data-[focused=true]/day:border-ring group-\
-data-[focused=true]/day:ring-ring/50 flex aspect-square h-auto w-full min-w-[--c\
-ell-size] flex-col gap-1 font-normal leading-none data-[range-end=true]:rounded-\
-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md grou\
-p-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data\
--[focused=true]/day:ring-[3px] [&>span]:text-xs [&>span]:opacity-70 data-[range-middle=true]:-mx-px data-[range-middle=true]:border-x-secondary",
+ue]:text-secondary-foreground data-[range-start=true]:bg-secondary data-[range-s\
+tart=true]:text-secondary-foreground data-[range-end=true]:bg-secondary data-[ra\
+nge-end=true]:text-secondary-foreground group-data-[focused=true]/day:border-rin\
+g group-data-[focused=true]/day:ring-ring/50 flex aspect-square h-auto w-full mi\
+n-w-[--cell-size] flex-col gap-1 font-normal leading-none group-data-[focused=tr\
+ue]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/da\
+y:ring-[3px] [&>span]:text-xs [&>span]:opacity-70 rounded-md data-[range-start=t\
+rue]:rounded-r-none data-[range-end=true]:rounded-l-none data-[range-middle=true\
+]:rounded-none",
         defaultClassNames.day,
         className
       )}

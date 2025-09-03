@@ -102,8 +102,9 @@ export function MyPresencesPage() {
             )}
           </div>
         </div>
-        <div className="mt-8 w-full">
+        <div className="mt-8 mx-auto w-full max-w-[400px]">
           <Calendar
+            key={weekId}
             mode="range"
             selected={{ from: days[0], to: days[4] }}
             month={days[0]}
