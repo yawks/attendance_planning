@@ -62,20 +62,8 @@ export function MyPresencesPage() {
       <CardHeader>
         <CardTitle>Mes présences</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col lg:flex-row gap-8">
-        <div className="w-full lg:w-auto">
-          <div className="flex justify-center">
-          <Calendar
-            mode="multiple"
-            selected={days}
-            month={days[0]}
-            ISOWeek
-            locale={fr}
-            className="rounded-md border"
-            />
-            </div>
-        </div>
-        <div className="flex-grow">
+      <CardContent>
+        <div>
           <WeekSelector weekId={weekId} setWeekId={setWeekId} />
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
             {loading ? (
@@ -113,6 +101,16 @@ export function MyPresencesPage() {
               })
             )}
           </div>
+        </div>
+        <div className="w-full flex justify-center mt-8">
+          <Calendar
+            mode="multiple"
+            selected={days}
+            month={days[0]}
+            ISOWeek
+            locale={fr}
+            className="rounded-md border"
+          />
         </div>
       </CardContent>
     </Card>

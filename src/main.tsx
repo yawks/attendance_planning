@@ -6,7 +6,7 @@ import { router } from './router'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import './index.css'
-import logoUrl from './assets/logo.png';
+import logoUrl from './assets/logo.png?inline';
 
 // Set favicon
 const favicon = document.createElement('link');

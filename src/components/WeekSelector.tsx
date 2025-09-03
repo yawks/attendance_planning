@@ -29,8 +29,9 @@ export function WeekSelector({ weekId, setWeekId }: WeekSelectorProps) {
       <Button variant="outline" size="icon" onClick={handleNextWeek}>
         <ChevronRight className="h-4 w-4" />
       </Button>
-      <Button variant="outline" size="icon" onClick={handleCurrentWeek} disabled={weekId === getWeekId()}>
-        <CalendarClock className="h-4 w-4" />
+      <Button variant="outline" onClick={handleCurrentWeek} disabled={weekId === getWeekId()}>
+        <CalendarClock className="h-4 w-4 mr-2" />
+        Aujourd'hui
       </Button>
     </div>
   );
