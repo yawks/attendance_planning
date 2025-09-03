@@ -1,6 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from '@tanstack/react-router';
-import logo from '@/assets/logo.png?inline';
+
+const logo = '/icons/logo.png';
 
 export function LoginPage() {
   const { signIn, isAuthenticated, isLoading } = useAuth();

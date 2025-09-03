@@ -11,12 +11,12 @@ const manifestForPlugin = {
     description: "Une application simple pour suivre les présences.",
     icons: [
       {
-        src: "src/assets/logo.png",
+        src: "/icons/logo.png",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "src/assets/logo.png",
+        src: "/icons/logo.png",
         sizes: "512x512",
         type: "image/png",
       },
