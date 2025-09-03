@@ -222,9 +222,8 @@ nge-end=true]:text-secondary-foreground group-data-[focused=true]/day:border-rin
 g group-data-[focused=true]/day:ring-ring/50 flex aspect-square h-auto w-full mi\
 n-w-[--cell-size] flex-col gap-1 font-normal leading-none group-data-[focused=tr\
 ue]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/da\
-y:ring-[3px] [&>span]:text-xs [&>span]:opacity-70 rounded-md data-[range-start=t\
-rue]:rounded-r-none data-[range-end=true]:rounded-l-none data-[range-middle=true\
-]:rounded-none",
+y:ring-[3px] [&>span]:text-xs [&>span]:opacity-70 data-[range-start=true]:rounded\
+-l-md data-[range-end=true]:rounded-r-md",
         defaultClassNames.day,
         className
       )}
