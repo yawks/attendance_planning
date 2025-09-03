@@ -12,7 +12,6 @@ export interface PresenceData {
   date: string;
   userEmail: string;
   userName: string;
-  userImageURL: string;
   presence: PresenceValue | string;
   rawRow: number;
 }
@@ -39,7 +38,6 @@ export function useGoogleSheets() {
           date: row[1],
           userEmail: row[2],
           userName: row[3],
-          userImageURL: row[4],
           presence: row[5],
           rawRow: index + 1,
         }))
@@ -77,7 +75,7 @@ export function useGoogleSheets() {
         const rowToUpdate = existingRowIndex + 1;
         await axios.put(
           `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!D${rowToUpdate}:F${rowToUpdate}`,
-          { values: [[user.name, user.imageUrl, presenceValue]] },
+          { values: [[user.name, '', presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { valueInputOption: 'RAW' }
@@ -86,7 +84,7 @@ export function useGoogleSheets() {
       } else {
         await axios.post(
           `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:F:append`,
-          { values: [[weekNumber, date, user.email, user.name, user.imageUrl, presenceValue]] },
+          { values: [[weekNumber, date, user.email, user.name, '', presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS' }

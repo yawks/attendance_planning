@@ -3,7 +3,7 @@ import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { getWeekId, getDaysInWeek, toISODateString } from '@/lib/date-utils';
 import { WeekSelector } from '@/components/WeekSelector';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -11,7 +11,6 @@ import { Calendar } from 'lucide-react';
 
 interface PresentUser {
   name: string;
-  imageUrl: string;
 }
 
 type PresencesByDay = Map<string, PresentUser[]>;
@@ -48,7 +47,6 @@ export function WhoIsHerePage() {
           const users = byDay.get(p.date) || [];
           users.push({
             name: p.userName || p.userEmail,
-            imageUrl: p.userImageURL,
           });
           byDay.set(p.date, users);
         }
@@ -85,7 +83,6 @@ export function WhoIsHerePage() {
                       presentUsers.map(person => (
                         <div key={person.name} className="flex items-center gap-2 p-1.5 text-xs">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={person.imageUrl} alt={person.name} />
                           <AvatarFallback name={person.name} />
                           </Avatar>
                           <span className="font-medium truncate">{person.name}</span>
