@@ -11,7 +11,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Building, Home } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar } from '@/components/ui/calendar';
 
 const DayCardSkeleton = () => (
   <div className="p-3 bg-muted/40 rounded-md flex flex-col gap-2">
@@ -67,23 +66,8 @@ export function MyPresencesPage() {
         <CardTitle>Mes présences</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex justify-between items-start mb-4">
+        <div className="mb-4">
           <WeekSelector weekId={weekId} setWeekId={setWeekId} />
-          <div className="w-[280px] hidden lg:block">
-            <Calendar
-              key={weekId}
-              mode="range"
-              selected={{ from: days[0], to: days[4] }}
-              month={days[0]}
-              locale={fr}
-              className="rounded-md border"
-              hideNav
-              showOutsideDays={false}
-              disabled={(date) =>
-                !days.find((d) => toISODateString(d) === toISODateString(date))
-              }
-            />
-          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">

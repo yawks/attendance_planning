@@ -21,14 +21,16 @@ export function WeekSelector({ weekId, setWeekId }: WeekSelectorProps) {
   };
 
   return (
-    <div className="flex items-center justify-center gap-4 my-4">
-      <Button variant="outline" size="icon" onClick={handlePreviousWeek}>
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      <span className="text-lg font-semibold w-32 text-center">{weekId}</span>
-      <Button variant="outline" size="icon" onClick={handleNextWeek}>
-        <ChevronRight className="h-4 w-4" />
-      </Button>
+    <div className="flex flex-col-reverse items-center gap-4 my-4 sm:flex-row sm:justify-center">
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" onClick={handlePreviousWeek}>
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="text-lg font-semibold w-32 text-center">{weekId}</span>
+        <Button variant="outline" size="icon" onClick={handleNextWeek}>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
       <Button variant="outline" onClick={handleCurrentWeek} disabled={weekId === getWeekId()}>
         <CalendarClock className="h-4 w-4 mr-2" />
         Aujourd'hui
