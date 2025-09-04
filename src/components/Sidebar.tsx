@@ -36,7 +36,7 @@ export function Sidebar() {
           "flex items-center gap-2 pb-4 border-b mb-4 p-4 h-[65px]", // Fixed height to match header
           isDesktopCollapsed && "justify-center"
         )}>
-          <KanbanSquare className="h-8 w-8 text-primary flex-shrink-0" />
+          <img src="/icons/logo.png" alt="Presence Tracker Logo" className="h-8 w-8 flex-shrink-0" />
           <h2 className={cn(
             "text-xl font-bold transition-opacity duration-200 whitespace-nowrap",
             isDesktopCollapsed && "lg:opacity-0 lg:w-0"
@@ -53,7 +53,7 @@ export function Sidebar() {
                 className="flex items-center gap-3 p-3 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 activeProps={{ className: 'font-bold bg-primary text-primary-foreground' }}
               >
-                <CalendarCheck className="h-5 w-5 flex-shrink-0" />
+                <CalendarCheck className="h-5 w-5 flex-shrink-0 text-primary" />
                 <span className={cn("transition-opacity", isDesktopCollapsed && "lg:opacity-0 lg:hidden")}>Mes présences</span>
               </Link>
             </li>
@@ -64,7 +64,7 @@ export function Sidebar() {
                 className="flex items-center gap-3 p-3 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 activeProps={{ className: 'font-bold bg-primary text-primary-foreground' }}
               >
-                <Users className="h-5 w-5 flex-shrink-0" />
+                <Users className="h-5 w-5 flex-shrink-0 text-primary" />
                 <span className={cn("transition-opacity", isDesktopCollapsed && "lg:opacity-0 lg:hidden")}>Qui est là ?</span>
               </Link>
             </li>
