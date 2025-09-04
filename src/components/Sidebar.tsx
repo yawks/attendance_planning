@@ -1,17 +1,17 @@
-import { Link } from '@tanstack/react-router';
-import { CalendarCheck, Users, KanbanSquare, ChevronsLeft } from 'lucide-react';
 import { useLayout } from '@/contexts/LayoutContext';
+import { useWeek } from '@/contexts/WeekContext';
+import { getDaysInWeek, toISODateString } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
+import { ChevronsLeft } from 'lucide-react';
 import { Button } from './ui/button';
+import { Calendar } from './ui/calendar';
+import { fr } from 'date-fns/locale';
 
 export function Sidebar() {
   const { isDesktopCollapsed, toggleDesktopSidebar, isMobileOpen, setMobileOpen } = useLayout();
+  const { weekId } = useWeek();
 
-  const handleLinkClick = () => {
-    if (isMobileOpen) {
-      setMobileOpen(false);
-    }
-  };
+  const days = getDaysInWeek(weekId);
 
   return (
     <>
@@ -44,33 +44,24 @@ export function Sidebar() {
             Presence Tracker
           </h2>
         </div>
-        <nav className="flex-1 px-2">
-          <ul className="space-y-2">
-            <li>
-              <Link
-                to="/"
-                onClick={handleLinkClick}
-                className="flex items-center gap-3 p-3 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                activeProps={{ className: 'font-bold bg-primary text-primary-foreground' }}
-              >
-                <CalendarCheck className="h-5 w-5 flex-shrink-0 text-primary" />
-                <span className={cn("transition-opacity", isDesktopCollapsed && "lg:opacity-0 lg:hidden")}>Mes présences</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/who-is-here"
-                onClick={handleLinkClick}
-                className="flex items-center gap-3 p-3 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                activeProps={{ className: 'font-bold bg-primary text-primary-foreground' }}
-              >
-                <Users className="h-5 w-5 flex-shrink-0 text-primary" />
-                <span className={cn("transition-opacity", isDesktopCollapsed && "lg:opacity-0 lg:hidden")}>Qui est là ?</span>
-              </Link>
-            </li>
-          </ul>
-        </nav>
-        <div className="p-2 border-t hidden lg:block">
+
+        <div className={cn("flex-1 px-4", isDesktopCollapsed && "lg:hidden")}>
+          <Calendar
+            key={weekId}
+            mode="range"
+            selected={{ from: days[0], to: days[4] }}
+            month={days[0]}
+            locale={fr}
+            className="rounded-md border"
+            hideNav
+            showOutsideDays={false}
+            disabled={(date) =>
+              !days.find((d) => toISODateString(d) === toISODateString(date))
+            }
+          />
+        </div>
+
+        <div className="p-2 border-t mt-auto hidden lg:block">
           <Button variant="ghost" onClick={toggleDesktopSidebar} className="w-full justify-center">
             <ChevronsLeft className={cn("h-5 w-5 transition-transform", isDesktopCollapsed && "rotate-180")} />
           </Button>

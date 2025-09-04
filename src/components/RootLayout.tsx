@@ -2,6 +2,7 @@ import { Outlet } from '@tanstack/react-router';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { LayoutProvider, useLayout } from '@/contexts/LayoutContext';
+import { WeekProvider } from '@/contexts/WeekContext';
 import { cn } from '@/lib/utils';
 
 function AppLayout() {
@@ -27,7 +28,9 @@ function AppLayout() {
 export function RootLayout() {
   return (
     <LayoutProvider>
-      <AppLayout />
+      <WeekProvider>
+        <AppLayout />
+      </WeekProvider>
     </LayoutProvider>
   );
 }

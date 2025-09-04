@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import { getWeekId } from '@/lib/date-utils';
+import { useWeek } from '@/contexts/WeekContext';
 import { WeekSelector } from '@/components/WeekSelector';
 import { WhoIsHereDisplay } from '@/components/WhoIsHereDisplay';
 import { Card, CardContent } from '@/components/ui/card';
 
 export function WhoIsHerePage() {
-  const [weekId, setWeekId] = useState(getWeekId());
+  const { weekId, setWeekId } = useWeek();
 
   return (
     <div className="space-y-4">

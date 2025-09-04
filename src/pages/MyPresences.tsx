@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWeek } from '@/contexts/WeekContext';
 import { useGoogleSheets, PresenceValue } from '@/hooks/useGoogleSheets';
-import { getWeekId, getDaysInWeek, toISODateString } from '@/lib/date-utils';
+import { getDaysInWeek, toISODateString } from '@/lib/date-utils';
 import { WeekSelector } from '@/components/WeekSelector';
 import { WhoIsHereDisplay } from '@/components/WhoIsHereDisplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,8 +28,8 @@ const DayCardSkeleton = () => (
 
 export function MyPresencesPage() {
   const { user } = useAuth();
+  const { weekId, setWeekId } = useWeek();
   const { getPresences, setPresence, loading } = useGoogleSheets();
-  const [weekId, setWeekId] = useState(getWeekId());
   const [presences, setPresences] = useState<Map<string, PresenceValue>>(new Map());
   const [refreshKey, setRefreshKey] = useState(0);
 
