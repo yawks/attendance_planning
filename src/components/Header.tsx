@@ -3,37 +3,19 @@ import { ThemeToggle } from './ThemeToggle';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
-import { Menu, CalendarCheck, Users } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useLayout } from '@/contexts/LayoutContext';
-import { Link } from '@tanstack/react-router';
 
 export function Header() {
   const { isAuthenticated, user, signOut, isLoading } = useAuth();
   const { toggleMobileMenu } = useLayout();
 
   return (
-    <header className="border-b p-4 flex items-center justify-between">
-      {/* Left-aligned items */}
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="lg:hidden" onClick={toggleMobileMenu}>
-          <Menu className="h-6 w-6" />
-        </Button>
-        <div className="hidden lg:flex items-center gap-2">
-          <Link to="/" activeProps={{ className: 'font-bold' }}>
-            <Button variant="ghost">
-              <CalendarCheck className="h-5 w-5 mr-2" />
-              Mes présences
-            </Button>
-          </Link>
-          <Link to="/who-is-here" activeProps={{ className: 'font-bold' }}>
-            <Button variant="ghost">
-              <Users className="h-5 w-5 mr-2" />
-              Qui est là ?
-            </Button>
-          </Link>
-        </div>
-      </div>
-
+    <header className="border-b p-4 flex items-center justify-between lg:justify-end">
+      {/* Hamburger menu for mobile */}
+      <Button variant="ghost" size="icon" className="lg:hidden" onClick={toggleMobileMenu}>
+        <Menu className="h-6 w-6" />
+      </Button>
 
       {/* Right-aligned items */}
       <div className="flex items-center gap-4">

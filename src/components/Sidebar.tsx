@@ -60,6 +60,7 @@ export function Sidebar() {
 
         <div className={cn("flex-1 px-4", isDesktopCollapsed && "lg:hidden")}>
           <Calendar
+            key={weekId}
             mode="range"
             selected={{ from: days[0], to: days[4] }}
             month={month}

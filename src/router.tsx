@@ -1,7 +1,6 @@
 import { createRouter, createRoute, createRootRoute, redirect, Outlet } from '@tanstack/react-router';
 import { RootLayout } from './components/RootLayout';
 import { MyPresencesPage } from './pages/MyPresences';
-import { WhoIsHerePage } from './pages/WhoIsHere';
 import { LoginPage } from './pages/Login';
 
 // A simple auth check
@@ -39,15 +38,9 @@ const indexRoute = createRoute({
   component: MyPresencesPage,
 });
 
-const whoIsHereRoute = createRoute({
-  getParentRoute: () => authenticatedRoute,
-  path: '/who-is-here',
-  component: WhoIsHerePage,
-});
-
 const routeTree = rootRoute.addChildren([
   loginRoute,
-  authenticatedRoute.addChildren([indexRoute, whoIsHereRoute]),
+  authenticatedRoute.addChildren([indexRoute]),
 ]);
 
 export const router = createRouter({
