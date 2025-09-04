@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useGoogleSheets, PresenceValue } from '@/hooks/useGoogleSheets';
 import { getWeekId, getDaysInWeek, toISODateString } from '@/lib/date-utils';
 import { WeekSelector } from '@/components/WeekSelector';
+import { WhoIsHereDisplay } from '@/components/WhoIsHereDisplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -29,6 +30,7 @@ export function MyPresencesPage() {
   const { getPresences, setPresence, loading } = useGoogleSheets();
   const [weekId, setWeekId] = useState(getWeekId());
   const [presences, setPresences] = useState<Map<string, PresenceValue>>(new Map());
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (user?.email) {
@@ -45,14 +47,15 @@ export function MyPresencesPage() {
     }
   }, [weekId, user, getPresences]);
 
-  const handlePresenceChange = (date: string, value: PresenceValue) => {
+  const handlePresenceChange = async (date: string, value: PresenceValue) => {
     if (!user?.email) return;
 
     const newPresences = new Map(presences);
     newPresences.set(date, value);
     setPresences(newPresences);
 
-    setPresence(date, weekId, value);
+    await setPresence(date, weekId, value);
+    setRefreshKey(k => k + 1);
   };
 
   const days = getDaysInWeek(weekId);
@@ -102,6 +105,11 @@ export function MyPresencesPage() {
             )}
           </div>
         </div>
+
+        <div className="mt-8">
+          <WhoIsHereDisplay weekId={weekId} key={refreshKey} />
+        </div>
+
         <div className="mt-8 mx-auto w-full max-w-[400px]">
           <Calendar
             key={weekId}
