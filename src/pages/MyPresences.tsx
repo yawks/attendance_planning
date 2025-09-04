@@ -66,64 +66,64 @@ export function MyPresencesPage() {
         <CardTitle>Mes présences</CardTitle>
       </CardHeader>
       <CardContent>
-        <div>
+        <div className="flex justify-between items-start mb-4">
           <WeekSelector weekId={weekId} setWeekId={setWeekId} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => <DayCardSkeleton key={i} />)
-            ) : (
-              days.map(day => {
-                const dateString = toISODateString(day);
-                const currentPresence = presences.get(dateString);
-                return (
-                  <div key={dateString} className="p-3 bg-muted/40 rounded-md flex flex-col gap-2">
-                    <div className="text-center">
-                      <p className="font-semibold capitalize">{format(day, 'eee', { locale: fr })}</p>
-                      <p className="text-sm text-muted-foreground">{format(day, 'd/MM', { locale: fr })}</p>
-                    </div>
-                    <div className="flex flex-col gap-2 mt-2 flex-grow">
-                      <Button
-                        variant={currentPresence === 'Bureau' ? 'default' : 'outline'}
-                        className="w-full"
-                        onClick={() => handlePresenceChange(dateString, 'Bureau')}
-                      >
-                        <Building className="h-4 w-4 mr-2" />
-                        Bureau
-                      </Button>
-                      <Button
-                        variant={currentPresence === 'Maison' ? 'secondary' : 'outline'}
-                        className="w-full"
-                        onClick={() => handlePresenceChange(dateString, 'Maison')}
-                      >
-                        <Home className="h-4 w-4 mr-2" />
-                        Maison
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })
-            )}
+          <div className="w-[280px] hidden lg:block">
+            <Calendar
+              key={weekId}
+              mode="range"
+              selected={{ from: days[0], to: days[4] }}
+              month={days[0]}
+              locale={fr}
+              className="rounded-md border"
+              hideNav
+              showOutsideDays={false}
+              disabled={(date) =>
+                !days.find((d) => toISODateString(d) === toISODateString(date))
+              }
+            />
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => <DayCardSkeleton key={i} />)
+          ) : (
+            days.map(day => {
+              const dateString = toISODateString(day);
+              const currentPresence = presences.get(dateString);
+              return (
+                <div key={dateString} className="p-3 bg-muted/40 rounded-md flex flex-col gap-2">
+                  <div className="text-center">
+                    <p className="font-semibold capitalize">{format(day, 'eee', { locale: fr })}</p>
+                    <p className="text-sm text-muted-foreground">{format(day, 'd/MM', { locale: fr })}</p>
+                  </div>
+                  <div className="flex flex-col gap-2 mt-2 flex-grow">
+                    <Button
+                      variant={currentPresence === 'Bureau' ? 'default' : 'outline'}
+                      className="w-full"
+                      onClick={() => handlePresenceChange(dateString, 'Bureau')}
+                    >
+                      <Building className="h-4 w-4 mr-2" />
+                      Bureau
+                    </Button>
+                    <Button
+                      variant={currentPresence === 'Maison' ? 'secondary' : 'outline'}
+                      className="w-full"
+                      onClick={() => handlePresenceChange(dateString, 'Maison')}
+                    >
+                      <Home className="h-4 w-4 mr-2" />
+                      Maison
+                    </Button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
         <div className="mt-8">
           <WhoIsHereDisplay weekId={weekId} key={refreshKey} />
-        </div>
-
-        <div className="mt-8 mx-auto w-full max-w-[400px]">
-          <Calendar
-            key={weekId}
-            mode="range"
-            selected={{ from: days[0], to: days[4] }}
-            month={days[0]}
-            locale={fr}
-            className="rounded-md border"
-            hideNav
-            showOutsideDays={false}
-            disabled={(date) =>
-              !days.find((d) => toISODateString(d) === toISODateString(date))
-            }
-          />
         </div>
       </CardContent>
     </Card>
