@@ -21,7 +21,7 @@ const manifestForPlugin = {
         type: "image/png",
       },
     ],
-    theme_color: "#ffffff",
+    theme_color: "#020817",
     background_color: "#ffffff",
     display: "standalone",
     scope: "/",
