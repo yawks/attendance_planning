@@ -1,17 +1,32 @@
+import { useState, useEffect } from 'react';
 import { useLayout } from '@/contexts/LayoutContext';
 import { useWeek } from '@/contexts/WeekContext';
-import { getDaysInWeek, toISODateString } from '@/lib/date-utils';
+import { getDaysInWeek, getFirstDayOfWeek, getWeekId } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import { ChevronsLeft } from 'lucide-react';
 import { Button } from './ui/button';
 import { Calendar } from './ui/calendar';
 import { fr } from 'date-fns/locale';
+import { DayClickEventHandler } from 'react-day-picker';
 
 export function Sidebar() {
   const { isDesktopCollapsed, toggleDesktopSidebar, isMobileOpen, setMobileOpen } = useLayout();
-  const { weekId } = useWeek();
+  const { weekId, setWeekId } = useWeek();
+
+  // Local state to manage the month displayed in the sidebar calendar
+  const [month, setMonth] = useState(getFirstDayOfWeek(weekId));
+
+  // This effect ensures that if the weekId changes elsewhere (e.g., via WeekSelector),
+  // the sidebar calendar jumps to the correct month.
+  useEffect(() => {
+    setMonth(getFirstDayOfWeek(weekId));
+  }, [weekId]);
 
   const days = getDaysInWeek(weekId);
+
+  const handleDayClick: DayClickEventHandler = (day) => {
+    setWeekId(getWeekId(day));
+  };
 
   return (
     <>
@@ -25,15 +40,13 @@ export function Sidebar() {
       <aside
         className={cn(
           "bg-background border-r flex flex-col fixed inset-y-0 left-0 z-20 transition-transform duration-300 ease-in-out",
-          // Mobile drawer logic
-          isMobileOpen ? "translate-x-0" : "-translate-x-full",
-          // Desktop collapse logic
           "lg:translate-x-0",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full",
           isDesktopCollapsed ? "lg:w-20" : "lg:w-64"
         )}
       >
         <div className={cn(
-          "flex items-center gap-2 pb-4 border-b mb-4 p-4 h-[65px]", // Fixed height to match header
+          "flex items-center gap-2 pb-4 border-b mb-4 p-4 h-[65px]",
           isDesktopCollapsed && "justify-center"
         )}>
           <img src="/icons/logo.png" alt="Presence Tracker Logo" className="h-8 w-8 flex-shrink-0" />
@@ -47,17 +60,14 @@ export function Sidebar() {
 
         <div className={cn("flex-1 px-4", isDesktopCollapsed && "lg:hidden")}>
           <Calendar
-            key={weekId}
             mode="range"
             selected={{ from: days[0], to: days[4] }}
-            month={days[0]}
+            month={month}
+            onMonthChange={setMonth}
+            onDayClick={handleDayClick}
             locale={fr}
             className="rounded-md border"
-            hideNav
             showOutsideDays={false}
-            disabled={(date) =>
-              !days.find((d) => toISODateString(d) === toISODateString(date))
-            }
           />
         </div>
 
