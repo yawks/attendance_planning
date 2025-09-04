@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLayout } from '@/contexts/LayoutContext';
 import { useWeek } from '@/contexts/WeekContext';
-import { getDaysInWeek, getFirstDayOfWeek, getWeekId } from '@/lib/date-utils';
+import { getDaysInWeek, weekIdToDate, getWeekId } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import { ChevronsLeft } from 'lucide-react';
 import { Button } from './ui/button';
@@ -14,12 +14,12 @@ export function Sidebar() {
   const { weekId, setWeekId } = useWeek();
 
   // Local state to manage the month displayed in the sidebar calendar
-  const [month, setMonth] = useState(getFirstDayOfWeek(weekId));
+  const [month, setMonth] = useState(weekIdToDate(weekId));
 
   // This effect ensures that if the weekId changes elsewhere (e.g., via WeekSelector),
   // the sidebar calendar jumps to the correct month.
   useEffect(() => {
-    setMonth(getFirstDayOfWeek(weekId));
+    setMonth(weekIdToDate(weekId));
   }, [weekId]);
 
   const days = getDaysInWeek(weekId);
