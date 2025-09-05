@@ -77,7 +77,9 @@ export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
                     <p className="font-semibold capitalize">{format(day, 'eee', { locale: fr })}</p>
                     <p className="text-sm text-muted-foreground">{format(day, 'd/MM', { locale: fr })}</p>
                     <p className="text-xs text-muted-foreground pt-1 mt-1 border-t border-dashed">
-                      {presentUsers.length} {presentUsers.length <= 1 ? 'personne' : 'personnes'}
+                      {presentUsers.length === 0
+                        ? 'Personne'
+                        : `${presentUsers.length} ${presentUsers.length === 1 ? 'personne' : 'personnes'}`}
                     </p>
                   </div>
                   <div className="space-y-2">

@@ -8,7 +8,7 @@ import { WhoIsHereDisplay } from '@/components/WhoIsHereDisplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Building, Home } from 'lucide-react';
+import { Building, Home, PowerOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -19,6 +19,7 @@ const DayCardSkeleton = () => (
       <Skeleton className="h-4 w-10 mx-auto mt-1" />
     </div>
     <div className="flex flex-col gap-2 mt-2 flex-grow">
+      <Skeleton className="h-10 w-full" />
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-10 w-full" />
     </div>
@@ -38,7 +39,7 @@ export function MyPresencesPage() {
         const userPresences = data.filter(p => p.userEmail === user.email);
         const presenceMap = new Map<string, PresenceValue>();
         userPresences.forEach(p => {
-          if (p.presence === 'Bureau' || p.presence === 'Maison') {
+          if (p.presence === 'Bureau' || p.presence === 'Maison' || p.presence === 'Off') {
             presenceMap.set(p.date, p.presence);
           }
         });
@@ -99,6 +100,14 @@ export function MyPresencesPage() {
                     >
                       <Home className="h-4 w-4 mr-2" />
                       Maison
+                    </Button>
+                    <Button
+                      variant={currentPresence === 'Off' ? 'destructive' : 'outline'}
+                      className="w-full"
+                      onClick={() => handlePresenceChange(dateString, 'Off')}
+                    >
+                      <PowerOff className="h-4 w-4 mr-2" />
+                      Off
                     </Button>
                   </div>
                 </div>

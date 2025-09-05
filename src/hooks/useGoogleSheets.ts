@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
 const SHEET_NAME = 'Presences';
 
-export type PresenceValue = 'Bureau' | 'Maison';
+export type PresenceValue = 'Bureau' | 'Maison' | 'Off';
 
 export interface PresenceData {
   weekNumber: string;
