@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLayout } from '@/contexts/LayoutContext';
 import { useWeek } from '@/contexts/WeekContext';
-import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { useContractHolder } from '@/contexts/ContractHolderContext';
 import { getDaysInWeek, weekIdToDate, getWeekId } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
@@ -16,7 +15,6 @@ import { DayClickEventHandler } from 'react-day-picker';
 export function Sidebar() {
   const { isDesktopCollapsed, toggleDesktopSidebar, isMobileOpen, setMobileOpen } = useLayout();
   const { weekId, setWeekId } = useWeek();
-  const { setContractHolderStatus, loading } = useGoogleSheets();
   const { isContractHolder, setIsContractHolder } = useContractHolder();
 
   // Local state to manage the month displayed in the sidebar calendar
@@ -28,9 +26,8 @@ export function Sidebar() {
     setMonth(weekIdToDate(weekId));
   }, [weekId]);
 
-  const handleContractHolderToggle = async (checked: boolean) => {
+  const handleContractHolderToggle = (checked: boolean) => {
     setIsContractHolder(checked);
-    await setContractHolderStatus(weekId, checked);
   };
 
   const days = getDaysInWeek(weekId);
@@ -90,7 +87,6 @@ export function Sidebar() {
               id="contract-holder"
               checked={isContractHolder}
               onCheckedChange={handleContractHolderToggle}
-              disabled={loading}
             />
           </div>
         </div>
