@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWeek } from '@/contexts/WeekContext';
+import { useContractHolder } from '@/contexts/ContractHolderContext';
 import { useGoogleSheets, PresenceValue } from '@/hooks/useGoogleSheets';
 import { getDaysInWeek, toISODateString } from '@/lib/date-utils';
 import { WeekSelector } from '@/components/WeekSelector';
@@ -30,6 +31,7 @@ export function MyPresencesPage() {
   const { user } = useAuth();
   const { weekId, setWeekId } = useWeek();
   const { getPresences, setPresence, loading } = useGoogleSheets();
+  const { isContractHolder } = useContractHolder();
   const [presences, setPresences] = useState<Map<string, PresenceValue>>(new Map());
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -55,7 +57,7 @@ export function MyPresencesPage() {
     newPresences.set(date, value);
     setPresences(newPresences);
 
-    await setPresence(date, weekId, value);
+    await setPresence(date, weekId, value, isContractHolder);
     setRefreshKey(k => k + 1);
   };
 

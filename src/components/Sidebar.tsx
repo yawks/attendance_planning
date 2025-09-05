@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useLayout } from '@/contexts/LayoutContext';
 import { useWeek } from '@/contexts/WeekContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { useGoogleSheets } from '@/hooks/useGoogleSheets';
+import { useContractHolder } from '@/contexts/ContractHolderContext';
 import { getDaysInWeek, weekIdToDate, getWeekId } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import { ChevronsLeft } from 'lucide-react';
@@ -16,9 +16,8 @@ import { DayClickEventHandler } from 'react-day-picker';
 export function Sidebar() {
   const { isDesktopCollapsed, toggleDesktopSidebar, isMobileOpen, setMobileOpen } = useLayout();
   const { weekId, setWeekId } = useWeek();
-  const { user } = useAuth();
-  const { getPresences, setContractHolderStatus, loading } = useGoogleSheets();
-  const [isContractHolder, setIsContractHolder] = useState(false);
+  const { setContractHolderStatus, loading } = useGoogleSheets();
+  const { isContractHolder, setIsContractHolder } = useContractHolder();
 
   // Local state to manage the month displayed in the sidebar calendar
   const [month, setMonth] = useState(weekIdToDate(weekId));
@@ -28,16 +27,6 @@ export function Sidebar() {
   useEffect(() => {
     setMonth(weekIdToDate(weekId));
   }, [weekId]);
-
-  useEffect(() => {
-    if (user?.email) {
-      getPresences(weekId).then(data => {
-        const userPresences = data.filter(p => p.userEmail === user.email);
-        const isHolder = userPresences.some(p => p.isContractHolder);
-        setIsContractHolder(isHolder);
-      });
-    }
-  }, [weekId, user, getPresences]);
 
   const handleContractHolderToggle = async (checked: boolean) => {
     setIsContractHolder(checked);

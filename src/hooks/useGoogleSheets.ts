@@ -58,7 +58,8 @@ export function useGoogleSheets() {
   const setPresence = useCallback(async (
     date: string,
     weekNumber: string,
-    presenceValue: PresenceValue
+    presenceValue: PresenceValue,
+    isContractHolder: boolean
   ) => {
     if (!token || !user) return;
     setLoading(true);
@@ -77,17 +78,17 @@ export function useGoogleSheets() {
       if (existingRowIndex !== -1) {
         const rowToUpdate = existingRowIndex + 1;
         await axios.put(
-          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!D${rowToUpdate}:F${rowToUpdate}`,
-          { values: [[user.name, '', presenceValue]] },
+          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!F${rowToUpdate}`,
+          { values: [[presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
-            params: { valueInputOption: 'RAW' }
+            params: { valueInputOption: 'RAW' },
           }
         );
       } else {
         await axios.post(
           `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:F:append`,
-          { values: [[weekNumber, date, user.email, user.name, '', presenceValue]] },
+          { values: [[weekNumber, date, user.email, user.name, isContractHolder ? 'TRUE' : 'FALSE', presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS' }
