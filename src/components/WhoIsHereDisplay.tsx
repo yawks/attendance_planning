@@ -18,6 +18,9 @@ const DayColumnSkeleton = () => (
     <div className="text-center border-b pb-2 mb-2">
       <Skeleton className="h-5 w-20 mx-auto" />
       <Skeleton className="h-4 w-12 mx-auto mt-1" />
+      <div className="border-t border-dashed mt-1 pt-1">
+        <Skeleton className="h-4 w-16 mx-auto" />
+      </div>
     </div>
     <div className="space-y-2">
       <div className="flex items-center gap-2 p-1.5">
@@ -73,6 +76,9 @@ export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
                   <div className="text-center border-b pb-2 mb-2">
                     <p className="font-semibold capitalize">{format(day, 'eee', { locale: fr })}</p>
                     <p className="text-sm text-muted-foreground">{format(day, 'd/MM', { locale: fr })}</p>
+                    <p className="text-xs text-muted-foreground pt-1 mt-1 border-t border-dashed">
+                      {presentUsers.length} {presentUsers.length <= 1 ? 'personne' : 'personnes'}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     {presentUsers.length > 0 ? (
