@@ -24,11 +24,9 @@ export function Sidebar() {
 
   // This effect ensures that if the weekId changes elsewhere (e.g., via WeekSelector),
   // the sidebar calendar jumps to the correct month.
-  // It also syncs the contract holder status for the newly selected week.
   useEffect(() => {
     setMonth(weekIdToDate(weekId));
-    setContractHolderStatus(weekId, isContractHolder);
-  }, [weekId, isContractHolder, setContractHolderStatus]);
+  }, [weekId]);
 
   const handleContractHolderToggle = async (checked: boolean) => {
     setIsContractHolder(checked);
