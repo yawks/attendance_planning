@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
+import { getDaysInWeek, toISODateString } from '@/lib/date-utils';
 
 const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
 const SHEET_NAME = 'Presences';
@@ -12,6 +13,7 @@ export interface PresenceData {
   date: string;
   userEmail: string;
   userName: string;
+  isContractHolder: boolean;
   presence: PresenceValue | string;
   rawRow: number;
 }
@@ -38,6 +40,7 @@ export function useGoogleSheets() {
           date: row[1],
           userEmail: row[2],
           userName: row[3],
+          isContractHolder: row[4] === 'TRUE',
           presence: row[5],
           rawRow: index + 1,
         }))
@@ -98,5 +101,47 @@ export function useGoogleSheets() {
     }
   }, [token, user]);
 
-  return { loading, error, getPresences, setPresence };
+  const setContractHolderStatus = useCallback(async (weekId: string, status: boolean) => {
+    if (!token || !user) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const days = getDaysInWeek(weekId);
+
+      const readResponse = await axios.get(
+        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:F`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const rows = readResponse.data.values || [];
+
+      const promises = days.map(day => {
+        const dateString = toISODateString(day);
+        const existingRowIndex = rows.findIndex(
+          (row: string[]) => row[1] === dateString && row[2] === user.email
+        );
+
+        if (existingRowIndex !== -1) {
+          const rowToUpdate = existingRowIndex + 1;
+          return axios.put(
+            `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!E${rowToUpdate}`,
+            { values: [[status ? 'TRUE' : 'FALSE']] },
+            { headers: { Authorization: `Bearer ${token}` }, params: { valueInputOption: 'RAW' } }
+          );
+        } else {
+          return axios.post(
+            `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:F:append`,
+            { values: [[weekId, dateString, user.email, user.name, status ? 'TRUE' : 'FALSE', '']] },
+            { headers: { Authorization: `Bearer ${token}` }, params: { valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS' } }
+          );
+        }
+      });
+      await Promise.all(promises);
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, user]);
+
+  return { loading, error, getPresences, setPresence, setContractHolderStatus };
 }

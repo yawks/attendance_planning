@@ -7,8 +7,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
+import { Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
 interface PresentUser {
   name: string;
+  isContractHolder: boolean;
 }
 
 type PresencesByDay = Map<string, PresentUser[]>;
@@ -47,6 +51,7 @@ export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
           const users = byDay.get(p.date) || [];
           users.push({
             name: p.userName || p.userEmail,
+            isContractHolder: p.isContractHolder,
           });
           byDay.set(p.date, users);
         }
@@ -71,16 +76,29 @@ export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
             days.map(day => {
               const dateString = toISODateString(day);
               const presentUsers = presencesByDay.get(dateString) || [];
+              presentUsers.sort((a, b) => Number(b.isContractHolder) - Number(a.isContractHolder));
+
+              const hasContractHolder = presentUsers.some(p => p.isContractHolder);
+
               return (
-                <div key={dateString} className="p-3 bg-muted/40 rounded-md flex flex-col gap-2">
+                <div
+                  key={dateString}
+                  className={cn(
+                    'p-3 bg-muted/40 rounded-md flex flex-col gap-2',
+                    presentUsers.length > 0 &&
+                      (hasContractHolder
+                        ? 'bg-green-100 dark:bg-green-900/30'
+                        : 'bg-red-100 dark:bg-red-900/30')
+                  )}
+                >
                   <div className="text-center border-b pb-2 mb-2">
                     <p className="font-semibold capitalize">{format(day, 'eee', { locale: fr })}</p>
                     <p className="text-sm text-muted-foreground">{format(day, 'd/MM', { locale: fr })}</p>
-                    <p className="text-xs text-muted-foreground pt-1 mt-1 border-t border-dashed">
-                      {presentUsers.length === 0
-                        ? 'Personne'
-                        : `${presentUsers.length} ${presentUsers.length === 1 ? 'personne' : 'personnes'}`}
-                    </p>
+                    {presentUsers.length > 0 && (
+                      <p className="text-xs text-muted-foreground pt-1 mt-1 border-t border-dashed">
+                        {`${presentUsers.length} ${presentUsers.length === 1 ? 'personne' : 'personnes'}`}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     {presentUsers.length > 0 ? (
@@ -90,6 +108,7 @@ export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
                             <AvatarFallback name={person.name} />
                           </Avatar>
                           <span className="font-medium truncate">{person.name}</span>
+                          {person.isContractHolder && <Star className="h-4 w-4 text-yellow-400 ml-auto" />}
                         </div>
                       ))
                     ) : (

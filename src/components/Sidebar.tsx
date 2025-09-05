@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useLayout } from '@/contexts/LayoutContext';
 import { useWeek } from '@/contexts/WeekContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 import { getDaysInWeek, weekIdToDate, getWeekId } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import { ChevronsLeft } from 'lucide-react';
 import { Button } from './ui/button';
 import { Calendar } from './ui/calendar';
+import { Switch } from './ui/switch';
+import { Label } from './ui/label';
 import { fr } from 'date-fns/locale';
 import { DayClickEventHandler } from 'react-day-picker';
 
 export function Sidebar() {
   const { isDesktopCollapsed, toggleDesktopSidebar, isMobileOpen, setMobileOpen } = useLayout();
   const { weekId, setWeekId } = useWeek();
+  const { user } = useAuth();
+  const { getPresences, setContractHolderStatus, loading } = useGoogleSheets();
+  const [isContractHolder, setIsContractHolder] = useState(false);
 
   // Local state to manage the month displayed in the sidebar calendar
   const [month, setMonth] = useState(weekIdToDate(weekId));
@@ -21,6 +28,21 @@ export function Sidebar() {
   useEffect(() => {
     setMonth(weekIdToDate(weekId));
   }, [weekId]);
+
+  useEffect(() => {
+    if (user?.email) {
+      getPresences(weekId).then(data => {
+        const userPresences = data.filter(p => p.userEmail === user.email);
+        const isHolder = userPresences.some(p => p.isContractHolder);
+        setIsContractHolder(isHolder);
+      });
+    }
+  }, [weekId, user, getPresences]);
+
+  const handleContractHolderToggle = async (checked: boolean) => {
+    setIsContractHolder(checked);
+    await setContractHolderStatus(weekId, checked);
+  };
 
   const days = getDaysInWeek(weekId);
 
@@ -70,6 +92,18 @@ export function Sidebar() {
             className="rounded-md border"
             showOutsideDays={false}
           />
+
+          <div className="mt-4 flex items-center justify-between rounded-lg border p-3 shadow-sm">
+            <Label htmlFor="contract-holder" className="font-medium">
+              Titulaire d'un contrat
+            </Label>
+            <Switch
+              id="contract-holder"
+              checked={isContractHolder}
+              onCheckedChange={handleContractHolderToggle}
+              disabled={loading}
+            />
+          </div>
         </div>
 
         <div className="p-2 border-t mt-auto hidden lg:block">
