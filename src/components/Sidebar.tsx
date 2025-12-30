@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { ChevronsLeft } from 'lucide-react';
 import { Button } from './ui/button';
 import { Calendar } from './ui/calendar';
-import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { fr } from 'date-fns/locale';
 import { DayClickEventHandler } from 'react-day-picker';
@@ -79,16 +78,6 @@ export function Sidebar() {
             showOutsideDays={false}
           />
 
-          <div className="mt-4 flex items-center justify-between rounded-lg border p-3 shadow-sm">
-            <Label htmlFor="contract-holder" className="font-medium">
-              Titulaire d'un contrat
-            </Label>
-            <Switch
-              id="contract-holder"
-              checked={isContractHolder}
-              onCheckedChange={handleContractHolderToggle}
-            />
-          </div>
         </div>
 
         <div className="p-2 border-t mt-auto hidden lg:block">

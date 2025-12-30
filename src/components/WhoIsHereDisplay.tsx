@@ -17,6 +17,12 @@ interface PresentUser {
 
 type PresencesByDay = Map<string, PresentUser[]>;
 
+interface AllPresences {
+  bureau: PresencesByDay;
+  maison: PresencesByDay;
+  off: PresencesByDay;
+}
+
 const DayColumnSkeleton = () => (
   <div className="p-3 bg-muted/40 rounded-md flex flex-col gap-2">
     <div className="text-center border-b pb-2 mb-2">
@@ -35,28 +41,115 @@ const DayColumnSkeleton = () => (
   </div>
 );
 
+interface PresenceGridProps {
+  title: string;
+  description: string;
+  presences: PresencesByDay;
+  loading: boolean;
+  days: Date[];
+  isBureau?: boolean;
+}
+
+const PresenceGrid = ({ title, description, presences, loading, days, isBureau = false }: PresenceGridProps) => (
+  <div className="mt-6">
+    <h3 className="text-lg font-semibold">{title}</h3>
+    <p className="text-sm text-muted-foreground">{description}</p>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
+      {loading ? (
+        Array.from({ length: 5 }).map((_, i) => <DayColumnSkeleton key={i} />)
+      ) : (
+        days.map(day => {
+          const dateString = toISODateString(day);
+          const presentUsers = presences.get(dateString) || [];
+          presentUsers.sort((a, b) => Number(b.isContractHolder) - Number(a.isContractHolder));
+
+          const hasContractHolder = presentUsers.some(p => p.isContractHolder);
+
+          return (
+            <div
+              key={dateString}
+              className={cn(
+                'p-3 bg-muted/40 rounded-md flex flex-col gap-2',
+                isBureau &&
+                  presentUsers.length > 0 &&
+                  (hasContractHolder ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30')
+              )}
+            >
+              <div className="text-center border-b pb-2 mb-2">
+                <p className="font-semibold capitalize">{format(day, 'eee', { locale: fr })}</p>
+                <p className="text-sm text-muted-foreground">{format(day, 'd/MM', { locale: fr })}</p>
+                {presentUsers.length > 0 && (
+                  <p className="text-xs text-muted-foreground pt-1 mt-1 border-t border-dashed">
+                    {`${presentUsers.length} ${presentUsers.length === 1 ? 'personne' : 'personnes'}`}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2 flex-grow">
+                {presentUsers.length > 0 ? (
+                  presentUsers.map(person => (
+                    <div key={person.name} className="flex items-center gap-2 p-1.5 text-xs">
+                      <Avatar className="h-6 w-6">
+                        <AvatarFallback name={person.name} />
+                      </Avatar>
+                      <span className="font-medium truncate">{person.name}</span>
+                      {person.isContractHolder && isBureau && <Star className="h-4 w-4 text-yellow-400 ml-auto" />}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground italic text-center mt-2 self-center">Personne.</p>
+                )}
+              </div>
+            </div>
+          );
+        })
+      )}
+    </div>
+  </div>
+);
+
 interface WhoIsHereDisplayProps {
   weekId: string;
 }
 
 export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
   const { getPresences, loading } = useGoogleSheets();
-  const [presencesByDay, setPresencesByDay] = useState<PresencesByDay>(new Map());
+  const [allPresences, setAllPresences] = useState<AllPresences>({
+    bureau: new Map(),
+    maison: new Map(),
+    off: new Map(),
+  });
 
   useEffect(() => {
     getPresences(weekId).then(data => {
-      const byDay: PresencesByDay = new Map();
+      const newAllPresences: AllPresences = {
+        bureau: new Map(),
+        maison: new Map(),
+        off: new Map(),
+      };
+
       data.forEach(p => {
+        const user = {
+          name: p.userName || p.userEmail,
+          isContractHolder: p.isContractHolder,
+        };
+
+        let targetMap: PresencesByDay | undefined;
         if (p.presence === 'Bureau') {
-          const users = byDay.get(p.date) || [];
-          users.push({
-            name: p.userName || p.userEmail,
-            isContractHolder: p.isContractHolder,
-          });
-          byDay.set(p.date, users);
+          targetMap = newAllPresences.bureau;
+        } else if (p.presence === 'Maison') {
+          targetMap = newAllPresences.maison;
+        } else if (p.presence === 'Off') {
+          targetMap = newAllPresences.off;
+        }
+
+        if (targetMap) {
+          const users = targetMap.get(p.date) || [];
+          users.push(user);
+          targetMap.set(p.date, users);
         }
       });
-      setPresencesByDay(byDay);
+
+      setAllPresences(newAllPresences);
     });
   }, [weekId, getPresences]);
 
@@ -65,61 +158,32 @@ export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Qui est au bureau cette semaine ?</CardTitle>
-        <CardDescription>Récapitulatif des personnes présentes au bureau.</CardDescription>
+        <CardTitle>Qui est où cette semaine ?</CardTitle>
+        <CardDescription>Récapitulatif des présences.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
-          {loading ? (
-            Array.from({ length: 5 }).map((_, i) => <DayColumnSkeleton key={i} />)
-          ) : (
-            days.map(day => {
-              const dateString = toISODateString(day);
-              const presentUsers = presencesByDay.get(dateString) || [];
-              presentUsers.sort((a, b) => Number(b.isContractHolder) - Number(a.isContractHolder));
-
-              const hasContractHolder = presentUsers.some(p => p.isContractHolder);
-
-              return (
-                <div
-                  key={dateString}
-                  className={cn(
-                    'p-3 bg-muted/40 rounded-md flex flex-col gap-2',
-                    presentUsers.length > 0 &&
-                      (hasContractHolder
-                        ? 'bg-green-100 dark:bg-green-900/30'
-                        : 'bg-red-100 dark:bg-red-900/30')
-                  )}
-                >
-                  <div className="text-center border-b pb-2 mb-2">
-                    <p className="font-semibold capitalize">{format(day, 'eee', { locale: fr })}</p>
-                    <p className="text-sm text-muted-foreground">{format(day, 'd/MM', { locale: fr })}</p>
-                    {presentUsers.length > 0 && (
-                      <p className="text-xs text-muted-foreground pt-1 mt-1 border-t border-dashed">
-                        {`${presentUsers.length} ${presentUsers.length === 1 ? 'personne' : 'personnes'}`}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    {presentUsers.length > 0 ? (
-                      presentUsers.map(person => (
-                        <div key={person.name} className="flex items-center gap-2 p-1.5 text-xs">
-                          <Avatar className="h-6 w-6">
-                            <AvatarFallback name={person.name} />
-                          </Avatar>
-                          <span className="font-medium truncate">{person.name}</span>
-                          {person.isContractHolder && <Star className="h-4 w-4 text-yellow-400 ml-auto" />}
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-xs text-muted-foreground italic text-center mt-2">Personne.</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+        <PresenceGrid
+          title="Bureau"
+          description="Personnes présentes au bureau."
+          presences={allPresences.bureau}
+          loading={loading}
+          days={days}
+          isBureau
+        />
+        <PresenceGrid
+          title="Maison"
+          description="Personnes en télétravail."
+          presences={allPresences.maison}
+          loading={loading}
+          days={days}
+        />
+        <PresenceGrid
+          title="Off"
+          description="Personnes absentes."
+          presences={allPresences.off}
+          loading={loading}
+          days={days}
+        />
       </CardContent>
     </Card>
   );
