@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     googleLogout();
     localStorage.removeItem('userSession');
     localStorage.removeItem('isAuthenticated'); // Keep removing for cleanup of old values
+    localStorage.removeItem('accessToken'); // Also remove the old token
     setUser(null);
     setToken(null);
     // Force a redirect to the login page to clear all state and prompt re-auth
