@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, ReactNode } from 'react';
+import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { getWeekId } from '@/lib/date-utils';
 
 interface WeekContextType {
@@ -9,7 +9,14 @@ interface WeekContextType {
 const WeekContext = createContext<WeekContextType | undefined>(undefined);
 
 export function WeekProvider({ children }: { children: ReactNode }) {
-  const [weekId, setWeekId] = useState<string>(getWeekId());
+  const [weekId, setWeekId] = useState<string>(() => {
+    const savedWeekId = sessionStorage.getItem('weekId');
+    return savedWeekId || getWeekId();
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('weekId', weekId);
+  }, [weekId]);
 
   const value = {
     weekId,
