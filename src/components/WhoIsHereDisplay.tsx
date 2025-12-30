@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-import { Star } from 'lucide-react';
+import { Star, Building, Home, PowerOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PresentUser {
@@ -47,12 +47,16 @@ interface PresenceGridProps {
   presences: PresencesByDay;
   loading: boolean;
   days: Date[];
+  icon?: React.ElementType;
   isBureau?: boolean;
 }
 
-const PresenceGrid = ({ title, description, presences, loading, days, isBureau = false }: PresenceGridProps) => (
+const PresenceGrid = ({ title, description, presences, loading, days, icon: Icon, isBureau = false }: PresenceGridProps) => (
   <div className="mt-6">
-    <h3 className="text-lg font-semibold">{title}</h3>
+    <div className="flex items-center gap-2">
+      {Icon && <Icon className="h-5 w-5" />}
+      <h3 className="text-lg font-semibold">{title}</h3>
+    </div>
     <p className="text-sm text-muted-foreground">{description}</p>
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
       {loading ? (
@@ -168,6 +172,7 @@ export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
           presences={allPresences.bureau}
           loading={loading}
           days={days}
+          icon={Building}
           isBureau
         />
         <PresenceGrid
@@ -176,6 +181,7 @@ export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
           presences={allPresences.maison}
           loading={loading}
           days={days}
+          icon={Home}
         />
         <PresenceGrid
           title="Off"
@@ -183,6 +189,7 @@ export function WhoIsHereDisplay({ weekId }: WhoIsHereDisplayProps) {
           presences={allPresences.off}
           loading={loading}
           days={days}
+          icon={PowerOff}
         />
       </CardContent>
     </Card>
