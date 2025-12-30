@@ -62,6 +62,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setUser({ name: data.name, email: data.email, imageUrl: data.picture });
+      // This is the key to fixing the race condition.
+      // We explicitly mark the user as authenticated only AFTER the profile is fetched.
+      localStorage.setItem('isAuthenticated', 'true');
     } catch (error) {
       console.error("Failed to fetch user profile", error);
       signOut(); // Sign out if profile fetch fails
