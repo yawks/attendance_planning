@@ -22,7 +22,39 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('accessToken'));
+  const [token, setToken] = useState<string | null>(() => {
+    const sessionData = localStorage.getItem('userSession');
+    if (!sessionData) {
+      return null;
+    }
+
+    try {
+      const session = JSON.parse(sessionData);
+      const thirtyDaysInMillis = 30 * 24 * 60 * 60 * 1000;
+
+      if (new Date().getTime() - session.timestamp > thirtyDaysInMillis) {
+        localStorage.removeItem('userSession');
+        return null;
+      }
+      return session.token;
+    } catch (error) {
+      // If parsing fails, remove the invalid item
+      localStorage.removeItem('userSession');
+      return null;
+    }
+  });
+
+  // Placed before fetchProfile and wrapped in useCallback to ensure stable reference
+  const signOut = useCallback(() => {
+    googleLogout();
+    localStorage.removeItem('userSession');
+    localStorage.removeItem('isAuthenticated'); // Keep removing for cleanup of old values
+    localStorage.removeItem('accessToken'); // Also remove the old token
+    setUser(null);
+    setToken(null);
+    // Force a redirect to the login page to clear all state and prompt re-auth
+    window.location.href = '/login';
+  }, []);
 
   const fetchProfile = useCallback(async (accessToken: string) => {
     try {
@@ -30,12 +62,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setUser({ name: data.name, email: data.email, imageUrl: data.picture });
+      // This is the key to fixing the race condition.
+      // We explicitly mark the user as authenticated only AFTER the profile is fetched.
       localStorage.setItem('isAuthenticated', 'true');
     } catch (error) {
       console.error("Failed to fetch user profile", error);
       signOut(); // Sign out if profile fetch fails
     }
-  }, []);
+  }, [signOut]);
 
   useEffect(() => {
     if (token) {
@@ -47,7 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useGoogleLogin({
     onSuccess: (tokenResponse) => {
-      localStorage.setItem('accessToken', tokenResponse.access_token);
+      const session = {
+        token: tokenResponse.access_token,
+        timestamp: new Date().getTime(),
+      };
+      localStorage.setItem('userSession', JSON.stringify(session));
       setToken(tokenResponse.access_token);
     },
     onError: (error) => {
@@ -55,16 +93,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     scope: 'profile email https://www.googleapis.com/auth/spreadsheets',
   });
-
-  const signOut = () => {
-    googleLogout();
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('isAuthenticated');
-    setUser(null);
-    setToken(null);
-    // Force a redirect to the login page to clear all state and prompt re-auth
-    window.location.href = '/login';
-  };
 
   const value = {
     isAuthenticated: !!user,

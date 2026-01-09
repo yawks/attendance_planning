@@ -118,7 +118,7 @@ enter [&:first-child[data-selected=true]_button]:rounded-l-md [&:last-child[data
           "bg-accent rounded-l-md",
           defaultClassNames.range_start
         ),
-        range_middle: cn("rounded-none", defaultClassNames.range_middle),
+        range_middle: cn("", defaultClassNames.range_middle),
         range_end: cn("bg-accent rounded-r-md", defaultClassNames.range_end),
         today: cn(
           "bg-accent text-accent-foreground rounded-md data-[selected=true]:roun\
@@ -222,8 +222,10 @@ nge-end=true]:text-secondary-foreground group-data-[focused=true]/day:border-rin
 g group-data-[focused=true]/day:ring-ring/50 flex aspect-square h-auto w-full mi\
 n-w-[--cell-size] flex-col gap-1 font-normal leading-none group-data-[focused=tr\
 ue]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/da\
-y:ring-[3px] [&>span]:text-xs [&>span]:opacity-70 data-[range-start=true]:rounded\
--l-md data-[range-end=true]:rounded-r-md",
+y:ring-[3px] [&>span]:text-xs [&>span]:opacity-70",
+        "data-[range-middle=true]:rounded-none",
+        "data-[range-start=true]:rounded-r-none",
+        "data-[range-end=true]:rounded-l-none",
         defaultClassNames.day,
         className
       )}

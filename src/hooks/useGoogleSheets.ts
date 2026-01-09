@@ -1,18 +1,19 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
+import { getDaysInWeek, toISODateString } from '@/lib/date-utils';
 
 const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
 const SHEET_NAME = 'Presences';
 
-export type PresenceValue = 'Bureau' | 'Maison';
+export type PresenceValue = 'Bureau' | 'Maison' | 'Off';
 
 export interface PresenceData {
   weekNumber: string;
   date: string;
   userEmail: string;
   userName: string;
-  userImageURL: string;
+  isContractHolder: boolean;
   presence: PresenceValue | string;
   rawRow: number;
 }
@@ -39,7 +40,7 @@ export function useGoogleSheets() {
           date: row[1],
           userEmail: row[2],
           userName: row[3],
-          userImageURL: row[4],
+          isContractHolder: row[4] === 'TRUE',
           presence: row[5],
           rawRow: index + 1,
         }))
@@ -57,7 +58,8 @@ export function useGoogleSheets() {
   const setPresence = useCallback(async (
     date: string,
     weekNumber: string,
-    presenceValue: PresenceValue
+    presenceValue: PresenceValue,
+    isContractHolder: boolean
   ) => {
     if (!token || !user) return;
     setLoading(true);
@@ -76,17 +78,17 @@ export function useGoogleSheets() {
       if (existingRowIndex !== -1) {
         const rowToUpdate = existingRowIndex + 1;
         await axios.put(
-          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!D${rowToUpdate}:F${rowToUpdate}`,
-          { values: [[user.name, user.imageUrl, presenceValue]] },
+          `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!E${rowToUpdate}:F${rowToUpdate}`,
+          { values: [[isContractHolder ? 'TRUE' : 'FALSE', presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
-            params: { valueInputOption: 'RAW' }
+            params: { valueInputOption: 'RAW' },
           }
         );
       } else {
         await axios.post(
           `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:F:append`,
-          { values: [[weekNumber, date, user.email, user.name, user.imageUrl, presenceValue]] },
+          { values: [[weekNumber, date, user.email, user.name, isContractHolder ? 'TRUE' : 'FALSE', presenceValue]] },
           {
             headers: { Authorization: `Bearer ${token}` },
             params: { valueInputOption: 'USER_ENTERED', insertDataOption: 'INSERT_ROWS' }

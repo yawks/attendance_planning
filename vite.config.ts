@@ -4,24 +4,24 @@ import { defineConfig } from "vite"
 import { VitePWA } from "vite-plugin-pwa"
 
 const manifestForPlugin = {
-  registerType: "prompt",
+  registerType: "autoUpdate",
   manifest: {
     name: "Presence Tracker",
     short_name: "Presence",
     description: "Une application simple pour suivre les présences.",
     icons: [
       {
-        src: "src/assets/logo.png",
+        src: "/icons/logo.png",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "src/assets/logo.png",
+        src: "/icons/logo.png",
         sizes: "512x512",
         type: "image/png",
       },
     ],
-    theme_color: "#ffffff",
+    theme_color: "#020817",
     background_color: "#ffffff",
     display: "standalone",
     scope: "/",
@@ -31,6 +31,7 @@ const manifestForPlugin = {
 };
 
 export default defineConfig({
+  base: '/',
   plugins: [react(), VitePWA(manifestForPlugin)],
   resolve: {
     alias: {
