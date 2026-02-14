@@ -4,7 +4,7 @@ import { defineConfig } from "vite"
 import { VitePWA } from "vite-plugin-pwa"
 
 const manifestForPlugin = {
-  registerType: "prompt",
+  registerType: "autoUpdate",
   manifest: {
     name: "Presence Tracker",
     short_name: "Presence",

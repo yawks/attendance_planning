@@ -1,6 +1,7 @@
 import { Outlet } from '@tanstack/react-router';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { UpdateNotification } from './UpdateNotification'; // Import the new component
 import { LayoutProvider, useLayout } from '@/contexts/LayoutContext';
 import { WeekProvider } from '@/contexts/WeekContext';
 import { cn } from '@/lib/utils';
@@ -21,6 +22,7 @@ function AppLayout() {
           <Outlet />
         </div>
       </main>
+      <UpdateNotification /> {/* Add the component here */}
     </div>
   )
 }
